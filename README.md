@@ -1,0 +1,1 @@
+A little app I made after frustrations experienced with official metadata validators on social media platforms, firewalls, and other nonsense.
