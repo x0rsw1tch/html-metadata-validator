@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>HTML Metadata Validator</title>
+    <meta name="description" content="Validate HTML meta tags, OpenGraph tags, twitter tags and more.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:image" content="https://ngz.io/meta-validator/mv.png">
+    <link rel="stylesheet" href="./bootstrap.min.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="vue.min.js"></script>
+    <script>Vue.config.devtools = true;</script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <div class="text-center">
+                        <h1>HTML Metadata Validator</h1>
+                        <div><small>Stack: VueJS, PHP, Composer, Selenium, cURL</small></div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xl-6 text-center mb-1">
+                    <div>
+                        <form method="post" action="./" v-on:submit.prevent="getData">
+                            <input type="text" v-model="url" placeholder="URL">
+                            <button type="submit">Go</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xl-6 radio-group text-center">
+                    <span class="px-2">Back-end:</span>
+                    <label :class="{ 'selected': fetchMode === 'selenium' }">
+                        <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="selenium"> Selenium (Chrome)
+                    </label>
+                    <label :class="{ 'selected': fetchMode === 'curl' }">
+                        <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="curl"> cURL
+                    </label>
+                    <label :class="{ 'selected': fetchMode === 'file_get_contents' }">
+                        <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="file_get_contents"> php file_get_contents()
+                    </label>
+                </div>
+            </div>
+            <div v-if="loading">
+                Loading...
+            </div>
+            <div v-if="error">
+                Something went wrong, check console.
+            </div>
+            <div class="row img-preview-row" v-show="!loading && submitted">
+                <hr>
+                <div class="col-6 img-preview" v-if="pageData.ogImage.length">
+                    <div><strong>og:image</strong></div>
+                    <div>
+                        <a :href="pageData.ogImage" target="_blank">Link:</a>
+                        <span class="breakup-text" v-text="pageData.ogImage"></span>
+                    </div>
+                    <img :src="pageData.ogImage" :title="pageData.ogImageAlt" :alt="pageData.ogImageAlt">
+                </div>
+                <div class="col-6 img-preview" v-if="pageData.ogImage.length === 0">
+                    <div><strong>og:image</strong></div>
+                    No og:image found
+                </div>
+                <div class="col-6 img-preview" v-if="pageData.twitterImage.length">
+                    <div><strong>twitter:image</strong></div>
+                    <div>
+                        <a :href="pageData.twitterImage" target="_blank">Link:</a>
+                        <span class="breakup-text" v-text="pageData.twitterImage"></span>
+                    </div>
+                    <img :src="pageData.twitterImage" :title="pageData.twitterImageAlt" :alt="pageData.twitterImageAlt">
+                </div>
+                <div class="col-6 img-preview" v-if="pageData.twitterImage.length === 0">
+                    <div><strong>twitter:image</strong></div>
+                    No twitter:image found
+                </div>
+            </div>
+            <div class="row" v-if="pageInfo" v-show="!loading && submitted">
+                <div class="col-12">
+                    <h4>Page Metadata</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="row" width="15%">Tag</th>
+                                <th scope="row" width="15%">Type</th>
+                                <th scope="row" width="15%">Property</th>
+                                <th scope="row" width="55%">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(i, index) in pageInfo" :key="index">
+                                <td class="mono" v-text="i.tag"></td>
+                                <td class="mono" v-text="i.type"></td>
+                                <td class="mono" v-text="i.name"></td>
+                                <td class="breakup-text" v-text="i.value"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+new Vue({
+    el: "#app",
+    data: () => {
+        return {
+            pageData: {
+                title: "",
+                description: "",
+                ogImage: "",
+                twitterImage: "",
+                ogImageAlt: "",
+                twitterImageAlt: "",
+                rr: "",
+                rawData: "",
+                parsedData: null
+            },
+            url: "",
+            loading: false,
+            submitted: false,
+            error: false,
+            fetchMode: "selenium"
+        }
+    },
+    methods: {
+        getData () {
+            this.loading = true;
+            Object.keys(this.pageData).forEach(element => {
+                this.pageData[element] = "";
+                if (element === "parsedData") {
+                    this.pageData[element] = null;
+                }
+            });
+            if (this.url.length) {
+                let endpoint = "./pageget-sc.php?q=";
+                if (this.fetchMode === "curl") {
+                    endpoint = "./pageget-curl.php?q=";
+                }
+                if (this.fetchMode === "file_get_contents") {
+                    endpoint = ".pageget-fgc.php?q=";
+                }
+                this.submitted = true;
+                fetch("./pageget-sc.php?q=" + this.url, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "text/plain"
+                    }
+                })
+                .then(response => {
+                    this.loading = false;
+                    if (response.ok && response.status === 200) {
+                        this.pageData.rr = response;
+                        this.pageData.rawData = response.text();
+                        return this.pageData.rawData;
+                    } else {
+                        this.error = true;
+                    }
+                })
+                .then(data=> {
+                    var parser = new DOMParser();
+                    this.pageData.parsedData = parser.parseFromString(data, 'text/html');
+                    console.log("Parsed: ", this.pageData.parsedData);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+            }
+        }
+    },
+    computed: {
+        pageInfo () {
+            let out = [];
+            if (this.pageData.parsedData !== null) {
+                const doc = this.pageData.parsedData;
+                const metaTags = doc.querySelectorAll("head > meta");
+
+                if (doc.querySelector("title") !== null) {
+                    out.push({
+                        tag: "<title>",
+                        property: "",
+                        value: doc.querySelector("title").innerText
+                    })
+                }
+                if (metaTags.length) {
+                    metaTags.forEach(element => {
+                        
+                        if (element.name) {
+                            out.push({
+                                tag: "meta",
+                                type: "name",
+                                name: element.name,
+                                value: element.content
+                            });
+                        }
+                        if (element.getAttribute("property") !== null) {
+                            out.push({
+                                tag: "meta",
+                                type: "property",
+                                name: element.getAttribute("property"),
+                                value: element.content
+                            });
+                        }
+                        if (element.getAttribute("property") === "og:image") {
+                            this.pageData.ogImage = element.content
+                        }
+                        if (element.getAttribute("property") === "og:image:alt") {
+                            this.pageData.ogImageAlt = element.content
+                        }
+                        if (element.getAttribute("property") === "twitter:image") {
+                            this.pageData.twitterImage = element.content
+                        }
+                        if (element.getAttribute("property") === "twitter:image:alt") {
+                            this.pageData.twitterImageAlt = element.content
+                        }
+                    }, this);
+                }
+            }
+            return out;
+        }
+    }
+});
+</script>
+</body>
+</html>
