@@ -9,8 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:image" content="https://ngz.io/meta-validator/mv.png">
     <link rel="stylesheet" href="./bootstrap.min.css">
+    <link rel="stylesheet" href="./prototype.css">
     <link rel="stylesheet" href="./styles.css">
-    <script src="vue.min.js"></script>
+    <script src="./vue.min.js"></script>
     <script>Vue.config.devtools = true;</script>
 </head>
 
@@ -84,10 +85,10 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="row" width="15%">Tag</th>
-                                <th scope="row" width="15%">Type</th>
-                                <th scope="row" width="15%">Property</th>
-                                <th scope="row" width="55%">Value</th>
+                                <th scope="row" class="w-15">Tag</th>
+                                <th scope="row" class="w-15">Type</th>
+                                <th scope="row" class="w-15">Property</th>
+                                <th scope="row" class="w-55">Value</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -104,7 +105,7 @@
         </div>
     </div>
 <script>
-new Vue({
+var app = new Vue({
     el: "#app",
     data: () => {
         return {
@@ -129,6 +130,7 @@ new Vue({
     methods: {
         getData () {
             this.loading = true;
+            this.error = false;
             Object.keys(this.pageData).forEach(element => {
                 this.pageData[element] = "";
                 if (element === "parsedData") {
@@ -141,10 +143,10 @@ new Vue({
                     endpoint = "./pageget-curl.php?q=";
                 }
                 if (this.fetchMode === "file_get_contents") {
-                    endpoint = ".pageget-fgc.php?q=";
+                    endpoint = "./pageget-fgc.php?q=";
                 }
                 this.submitted = true;
-                fetch("./pageget-sc.php?q=" + this.url, {
+                fetch(endpoint + this.url, {
                     method: "GET",
                     headers: {
                         "Content-Type": "text/plain"
