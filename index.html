@@ -2,109 +2,109 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>HTML Metadata Validator</title>
-    <meta name="description" content="Validate HTML meta tags, OpenGraph tags, twitter tags and more.">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta property="og:image" content="https://ngz.io/meta-validator/mv.png">
-    <link rel="stylesheet" href="./bootstrap.min.css">
-    <link rel="stylesheet" href="./prototype.css">
-    <link rel="stylesheet" href="./styles.css">
-    <script src="./vue.min.js"></script>
-    <script>Vue.config.devtools = true;</script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>HTML Metadata Validator</title>
+  <meta name="description" content="Validate HTML meta tags, OpenGraph tags, twitter tags and more.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:image" content="https://ngz.io/meta-validator/mv.png">
+  <link rel="stylesheet" href="./bootstrap.min.css">
+  <link rel="stylesheet" href="./prototype.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./vue.min.js"></script>
+  <script>Vue.config.devtools = true;</script>
 </head>
 
 <body>
-    <div id="app">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 mb-2">
-                    <div class="text-center">
-                        <h1>HTML Metadata Validator</h1>
-                        <div><small>Stack: VueJS, PHP, Composer, Selenium, cURL</small></div>
-                    </div>
-                </div>
-                <div class="col-md-12 col-xl-6 text-center mb-1">
-                    <div>
-                        <form method="post" action="./" v-on:submit.prevent="getData">
-                            <input type="text" v-model="url" placeholder="URL">
-                            <button type="submit">Go</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="col-md-12 col-xl-6 radio-group text-center">
-                    <span class="px-2">Back-end:</span>
-                    <label :class="{ 'selected': fetchMode === 'selenium' }">
-                        <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="selenium"> Selenium (Chrome)
-                    </label>
-                    <label :class="{ 'selected': fetchMode === 'curl' }">
-                        <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="curl"> cURL
-                    </label>
-                    <label :class="{ 'selected': fetchMode === 'file_get_contents' }">
-                        <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="file_get_contents"> php file_get_contents()
-                    </label>
-                </div>
-            </div>
-            <div v-if="loading">
-                Loading...
-            </div>
-            <div v-if="error">
-                Something went wrong, check console.
-            </div>
-            <div class="row img-preview-row" v-show="!loading && submitted">
-                <hr>
-                <div class="col-6 img-preview" v-if="pageData.ogImage.length">
-                    <div><strong>og:image</strong></div>
-                    <div>
-                        <a :href="pageData.ogImage" target="_blank">Link:</a>
-                        <span class="breakup-text" v-text="pageData.ogImage"></span>
-                    </div>
-                    <img :src="pageData.ogImage" :title="pageData.ogImageAlt" :alt="pageData.ogImageAlt">
-                </div>
-                <div class="col-6 img-preview" v-if="pageData.ogImage.length === 0">
-                    <div><strong>og:image</strong></div>
-                    No og:image found
-                </div>
-                <div class="col-6 img-preview" v-if="pageData.twitterImage.length">
-                    <div><strong>twitter:image</strong></div>
-                    <div>
-                        <a :href="pageData.twitterImage" target="_blank">Link:</a>
-                        <span class="breakup-text" v-text="pageData.twitterImage"></span>
-                    </div>
-                    <img :src="pageData.twitterImage" :title="pageData.twitterImageAlt" :alt="pageData.twitterImageAlt">
-                </div>
-                <div class="col-6 img-preview" v-if="pageData.twitterImage.length === 0">
-                    <div><strong>twitter:image</strong></div>
-                    No twitter:image found
-                </div>
-            </div>
-            <div class="row" v-if="pageInfo" v-show="!loading && submitted">
-                <div class="col-12">
-                    <h4>Page Metadata</h4>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="row" class="w-15">Tag</th>
-                                <th scope="row" class="w-15">Type</th>
-                                <th scope="row" class="w-15">Property</th>
-                                <th scope="row" class="w-55">Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(i, index) in pageInfo" :key="index">
-                                <td class="mono" v-text="i.tag"></td>
-                                <td class="mono" v-text="i.type"></td>
-                                <td class="mono" v-text="i.name"></td>
-                                <td class="breakup-text" v-text="i.value"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <div id="app">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <div class="text-center">
+            <h1>HTML Metadata Validator</h1>
+            <div><small>Stack: VueJS, PHP, Composer, Selenium, cURL</small></div>
+          </div>
         </div>
+        <div class="col-md-12 col-xl-6 text-center mb-1">
+          <div>
+            <form method="post" action="./" v-on:submit.prevent="getData">
+              <input type="text" v-model="url" placeholder="URL">
+              <button type="submit">Go</button>
+            </form>
+          </div>
+        </div>
+        <div class="col-md-12 col-xl-6 radio-group text-center">
+          <span class="px-2">Back-end:</span>
+          <label :class="{ 'selected': fetchMode === 'selenium' }">
+            <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="selenium"> Selenium (Chrome)
+          </label>
+          <label :class="{ 'selected': fetchMode === 'curl' }">
+            <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="curl"> cURL
+          </label>
+          <label :class="{ 'selected': fetchMode === 'file_get_contents' }">
+            <input type="radio" name="fetcherModeRadio" v-model="fetchMode" value="file_get_contents"> php file_get_contents()
+          </label>
+        </div>
+      </div>
+      <div v-if="loading">
+        Loading...
+      </div>
+      <div v-if="error">
+        Something went wrong, check console.
+      </div>
+      <div class="row img-preview-row" v-show="!loading && submitted">
+        <hr>
+        <div class="col-6 img-preview" v-if="pageData.ogImage.length">
+          <div><strong>og:image</strong></div>
+          <div>
+            <a :href="pageData.ogImage" target="_blank">Link:</a>
+            <span class="breakup-text" v-text="pageData.ogImage"></span>
+          </div>
+          <img :src="pageData.ogImage" :title="pageData.ogImageAlt" :alt="pageData.ogImageAlt">
+        </div>
+        <div class="col-6 img-preview" v-if="pageData.ogImage.length === 0">
+          <div><strong>og:image</strong></div>
+          No og:image found
+        </div>
+        <div class="col-6 img-preview" v-if="pageData.twitterImage.length">
+          <div><strong>twitter:image</strong></div>
+          <div>
+            <a :href="pageData.twitterImage" target="_blank">Link:</a>
+            <span class="breakup-text" v-text="pageData.twitterImage"></span>
+          </div>
+          <img :src="pageData.twitterImage" :title="pageData.twitterImageAlt" :alt="pageData.twitterImageAlt">
+        </div>
+        <div class="col-6 img-preview" v-if="pageData.twitterImage.length === 0">
+          <div><strong>twitter:image</strong></div>
+          No twitter:image found
+        </div>
+      </div>
+      <div class="row" v-if="pageInfo" v-show="!loading && submitted">
+        <div class="col-12">
+          <h4>Page Metadata</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="row" class="w-15">Tag</th>
+                <th scope="row" class="w-15">Type</th>
+                <th scope="row" class="w-15">Property</th>
+                <th scope="row" class="w-55">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(i, index) in pageInfo" :key="index">
+                <td class="mono" v-text="i.tag"></td>
+                <td class="mono" v-text="i.type"></td>
+                <td class="mono" v-text="i.name"></td>
+                <td class="breakup-text" v-text="i.value"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-<script>
+  </div>
+  <script>
 var app = new Vue({
     el: "#app",
     data: () => {
@@ -179,12 +179,20 @@ var app = new Vue({
             if (this.pageData.parsedData !== null) {
                 const doc = this.pageData.parsedData;
                 const metaTags = doc.querySelectorAll("head > meta");
+                const links = doc.querySelectorAll('link[rel]');
 
                 if (doc.querySelector("title") !== null) {
                     out.push({
                         tag: "<title>",
                         property: "",
                         value: doc.querySelector("title").innerText
+                    })
+                }
+                if (doc.querySelector('link[rel="canonical"]') !== null) {
+                    out.push({
+                        tag: '<link rel="canonical">',
+                        property: "",
+                        value: doc.querySelector('link[rel="canonical"]').href
                     })
                 }
                 if (metaTags.length) {
@@ -220,6 +228,18 @@ var app = new Vue({
                         }
                     }, this);
                 }
+                if (links.length) {
+                  links.forEach(element => {
+                    if (element.rel !== "canonical") {
+                      out.push({
+                        tag: "link",
+                        type: element.rel,
+                        name: "",
+                        value: element.getAttribute("href")
+                      });
+                    }
+                  });
+                }
             }
             return out;
         }
@@ -227,4 +247,5 @@ var app = new Vue({
 });
 </script>
 </body>
+
 </html>
